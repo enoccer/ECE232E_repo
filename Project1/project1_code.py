@@ -73,6 +73,35 @@ def network_plot(g):
     ig.plot(communities, target=ax, vertex_size=15, vertex_color="lightblue", edge_width=0.5, mark_groups=True)
     plt.show()
 
+def attachment_probabilities(degrees, ages, alpha, beta, a, b, c, d):
+    degrees = np.asarray(degrees, dtype=float)
+    ages = np.asarray(ages, dtype=float)
+    weights = (c * degrees**alpha + a) * (d * ages**beta + b)
+    return weights / weights.sum()
+
+def pa_age_network(n, m, alpha, beta, a, b, c, d):
+    #initialize
+    degree = np.zeros(n, dtype = float)
+    edges = []
+
+    degree[0] += 1
+    degree[1] += 1
+    edges.append((0,1))
+
+    for i in range(2, n):
+        ages = (i - np.arange(i)).astype(float)
+        ki = degree[:i]
+
+        prob = attachment_probabilities(ki, ages, alpha = 1, beta = -1, a = 1, b = 0, c = 1, d = 1)
+
+        targets = rng.choice(i, size = m, replace = False, p = prob)
+        for target in targets:
+            edges.append((i, target))
+            degree[i] += 1
+            degree[target] += 1
+
+    return ig.Graph(n = n, edges = edges, directed = False)
+
 def question_2a():
     is_connected = []
     for i in range(0, 20):
@@ -170,8 +199,35 @@ def question_2h():
     network_plot(g_pa)
     print("New Network")
     network_plot(new_g)
+    return
 
 
+def question_3():
+    print("Part A")
+    g = pa_age_network(n=1050, m=1, alpha=1.0, beta= -1.0, a=1, b=0, c=1, d=1)
+    degrees = np.asarray(g.degree())
+    k, counts = np.unique(degrees, return_counts=True)
+    prob = counts / counts.sum()
+    
+    mask = (k >= 1 ) & (counts > 0)
+    slope, intercept = np.polyfit(np.log(k[mask]), np.log(prob[mask]), 1)
+    print("rough log-log slope:", slope)
+    print("Power Law Exponent is roughly: ", -slope)
+    
+    plt.figure(figsize=(7, 4))
+    plt.loglog(k, prob, "o", label="empirical")
+    plt.loglog(k, np.exp(intercept) * k**slope, label="power law")
+    plt.legend()
+    plt.xlabel("degree")
+    plt.ylabel("empirical probability")
+    plt.title("One PA degree distribution sample")
+    plt.show()
+    #power_law_exponent = ig.power_law_fit(degrees)
 
+    print("Part B")
+    communities = g.community_fastgreedy().as_clustering()
+    modularity = communities.modularity
+    print("Modularity: ", round(modularity, 3))  
+    
 
     
