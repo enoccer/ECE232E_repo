@@ -126,6 +126,11 @@ def question2_1():
     print(f"N = 900  : {diameter900}")
     print(f"N = 9000 : {diameter9000}")
 
+    print("When the network size was increased from 900 to 9000 nodes while keeping the edge probability fixed "
+          "at p=0.015, the diameter decreased from 5 to 3. Although the larger graph contains ten times as many "
+          "nodes, it is also much denser because the expected degree increases from approximately 13.5 to 135. The "
+          "increased connectivity creates many additional shortcuts between nodes, reducing the maximum shortest-path distance in the network.")
+
 
 def question_1a():
 	probs = [0.002, 0.006, 0.012, 0.045, 0.1]
