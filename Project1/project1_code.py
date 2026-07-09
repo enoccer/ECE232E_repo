@@ -1,6 +1,7 @@
 import igraph as ig
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 rng = np.random.default_rng(232)
 
@@ -189,7 +190,6 @@ def question_1d_logfit(c):
 	plt.legend()
 	plt.show()
 
-
 def question_1d_part_iv():
 	c_vals = [1.15, 1.25, 1.35]
 	n_start, n_end = 100, 1e4
@@ -216,6 +216,131 @@ def question_1d_part_iv():
 	plt.grid(True, linestyle='--', alpha=0.5)
 	plt.legend()
 	plt.show()
+
+
+###################################
+#                                 #
+#   2. Random Walk on Networks    #
+#                                 #
+###################################
+
+def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None):
+    """
+    Simulate a random walk and return the path of visited nodes.
+
+    Suggested return value:
+    - A NumPy array or list containing the starting node and each subsequent node.
+    """
+    
+    if rng is None:
+        rng = np.random.default_rng()
+    
+    n_nodes = g.vcount()
+    if start_node is None:
+        start_node = rng.choice(n_nodes)
+        
+    # Initialize path with starting node
+    path = [start_node]
+    current_node = start_node
+
+    # Random walk
+    for _ in range(num_steps):
+        neighbors = g.neighbors(current_node)
+        
+        # If the node has neighbors, pick one randomly and move
+        if neighbors:
+            current_node = rng.choice(neighbors)
+            path.append(current_node)
+            
+        else:
+        	# If walker hits dead end, it's stuck at current node for remaining steps
+        	path.append(current_node)
+
+    return path
+
+def estimate_visit_probabilities(path, n_nodes):
+    """
+    Estimate node visit probabilities from a random-walk path.
+
+    Hints:
+    - np.bincount can count visits to integer-labeled nodes.
+    - The probabilities should sum to 1.
+    """
+    
+    # Count how many visits to every node in graph
+    # minlength ensures output array has slot for every node (0 to n-1)
+    visit_counts = np.bincount(path, minlength=n_nodes)
+    visit_probs = visit_counts / len(path)
+    return visit_probs
+    
+def plot_visit_probabilities(visit_probs, n_nodes, n_steps):
+	
+	# Plot probabilities
+	plt.figure(figsize=(10, 5))
+	node_indices = np.arange(n_nodes)
+	plt.plot(node_indices, visit_probs, color='darkblue', alpha=0.7, label='Visit Probability')
+	plt.fill_between(node_indices, visit_probs, color='skyblue', alpha=0.4)
+	
+	# Formatting
+	plt.title(f'Empirical Node Visit Probabilities via Random Walk ({n_steps} Steps)', 
+	          fontsize=13, fontweight='bold')
+	plt.xlabel('Node Index', fontsize=11)
+	plt.ylabel('Probability', fontsize=11)
+	plt.xlim(0, n_nodes)
+	plt.ylim(bottom=0) # Probabilities cannot be negative
+	plt.grid(True, linestyle='--', alpha=0.3)
+	plt.legend()
+	
+	plt.show()
+
+def question2_3a():
+	
+	# Directed random network
+	n = 900
+	m = 4
+	g1 = ig.Graph.Barabasi(n=n, m=m, directed=True)
+	g2 = ig.Graph.Barabasi(n=n, m=m, directed=True)
+	
+	# Shuffle indices of nodes
+	shuffled_indices_g1 = random.sample(range(n), n)
+	shuffled_indices_g2 = random.sample(range(n), n)
+	g1_shuffled = g1.permute_vertices(shuffled_indices_g1)
+	g2_shuffled = g2.permute_vertices(shuffled_indices_g2)
+	
+	# Merge networks by adding the second graph's edges to the first graph
+	g2_shuffled_edges = g2_shuffled.get_edgelist()
+	g1_shuffled.add_edges(g2_shuffled_edges)
+	
+	print(f"Graph 1 edges: {g1.ecount()}")
+	print(f"Graph 2 edges: {g2.ecount()}")
+	print(f"Total nodes: {g1_shuffled.vcount()}")
+	print(f"Total merged edges: {g1_shuffled.ecount()}")
+	
+	# Random walk
+	num_steps = 5000
+	path = random_walk(g1_shuffled, num_steps=num_steps, rng=rng)
+
+	# Visit probabilities to every node in graph
+	visit_probs = estimate_visit_probabilities(path, n)
+	
+	# Plot probabilities
+	plot_visit_probabilities(visit_probs, n, num_steps)
+
+	# See the relationship between node in-degree and visit probability
+	# Get the in-degree of every node
+	in_degrees = np.array(g1_shuffled.indegree())
+	
+	# Find the node with the highest in-degree and highest visit probability
+	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
+
+
+
+
+
+
+
+
 
 
 
