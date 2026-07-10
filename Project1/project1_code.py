@@ -292,12 +292,11 @@ def plot_visit_probabilities(visit_probs, n_nodes, n_steps):
 	plt.legend()
 	
 	plt.show()
-
-def question2_3a():
 	
+def page_rank_network(n, m):
+	"""Creates a PageRank network."""
+
 	# Directed random network
-	n = 900
-	m = 4
 	g1 = ig.Graph.Barabasi(n=n, m=m, directed=True)
 	g2 = ig.Graph.Barabasi(n=n, m=m, directed=True)
 	
@@ -316,9 +315,18 @@ def question2_3a():
 	print(f"Total nodes: {g1_shuffled.vcount()}")
 	print(f"Total merged edges: {g1_shuffled.ecount()}")
 	
+	return g1_shuffled
+
+def question2_3a():
+	
+	# Directed random network
+	n = 900
+	m = 4
+	pagerank = page_rank_network(n, m)
+	
 	# Random walk
 	num_steps = 5000
-	path = random_walk(g1_shuffled, num_steps=num_steps, rng=rng)
+	path = random_walk(pagerank, num_steps=num_steps, rng=rng)
 
 	# Visit probabilities to every node in graph
 	visit_probs = estimate_visit_probabilities(path, n)
@@ -328,19 +336,88 @@ def question2_3a():
 
 	# See the relationship between node in-degree and visit probability
 	# Get the in-degree of every node
-	in_degrees = np.array(g1_shuffled.indegree())
+	in_degrees = np.array(pagerank.indegree())
 	
 	# Find the node with the highest in-degree and highest visit probability
 	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
 	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
 
+def random_walk_with_teleportation(
+    g,
+    num_steps,
+    start_node=None,
+    alpha=0.2,
+    teleport_probs=None,
+    transition_matrix=None,
+    rng=None,
+):
+    """
+    Simulate a random walk with teleportation.
 
+    Suggested behavior:
+    - With probability alpha, choose the next node from teleport_probs.
+    - Otherwise, follow the graph transition probabilities.
+    """
+    
+    if rng is None:
+        rng = np.random.default_rng()
+        
+    n_nodes = g.vcount()
+    if start_node is None:
+        start_node = rng.choice(n_nodes)
+    
+    if teleport_probs is None:
+    	# If not given, then uniform probability to each node
+    	teleport_probs = np.ones(n_nodes) / n_nodes
+    
+    # Initialize path with starting node
+    path = [start_node]
+    current_node = start_node
+    
+    # Random walk with teleportation
+    for _ in range(num_steps):
+    	if rng.random() < alpha:
+    		# Teleport to a completely new node
+    		current_node = rng.choice(n_nodes, p=teleport_probs)
+    	else:
+    		neighbors = g.neighbors(current_node)
+    		if neighbors:
+    			# If the current node has neighbors, pick one randomly and move
+    			current_node = rng.choice(neighbors)
+    		else:
+    			# If at a dead end, force a teleportation
+    			current_node = rng.choice(n_nodes, p=teleport_probs)
+    
+    	path.append(current_node)
+    
+    return path
 
+def question2_3b(alpha=0.2, num_steps=5000):
 
+	# Generate PageRank network
+	n = 900
+	m = 4
+	pagerank = page_rank_network(n, m)
+	
+	# Random walk with teleportation
+	path = random_walk_with_teleportation(pagerank, 
+										  num_steps, 
+										  alpha=alpha,
+										  rng=rng)
 
+	# Visit probabilities to every node in graph
+	visit_probs = estimate_visit_probabilities(path, n)
+	
+	# Plot probabilities
+	plot_visit_probabilities(visit_probs, n, num_steps)
+	
+	# See the relationship between node in-degree and visit probability
+	in_degrees = np.array(pagerank.indegree())
 
-
-
+	# Find the node with the highest in-degree and highest visit probability
+	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
+	print(f"alpha={alpha}, num_steps={num_steps}")
 
 
 
