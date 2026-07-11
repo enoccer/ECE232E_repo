@@ -310,10 +310,10 @@ def page_rank_network(n, m):
 	g2_shuffled_edges = g2_shuffled.get_edgelist()
 	g1_shuffled.add_edges(g2_shuffled_edges)
 	
-	print(f"Graph 1 edges: {g1.ecount()}")
-	print(f"Graph 2 edges: {g2.ecount()}")
-	print(f"Total nodes: {g1_shuffled.vcount()}")
-	print(f"Total merged edges: {g1_shuffled.ecount()}")
+	#print(f"Graph 1 edges: {g1.ecount()}")
+	#print(f"Graph 2 edges: {g2.ecount()}")
+	#print(f"Total nodes: {g1_shuffled.vcount()}")
+	#print(f"Total merged edges: {g1_shuffled.ecount()}")
 	
 	return g1_shuffled
 
@@ -419,13 +419,99 @@ def question2_3b(alpha=0.2, num_steps=5000):
 	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
 	print(f"alpha={alpha}, num_steps={num_steps}")
 
+def question2_4a(alpha=0.2, num_steps=5000):
 
+	# Generate PageRank network
+	n = 900
+	m = 4
+	pagerank_net = page_rank_network(n, m)
+	
+	# Use PageRank score for every node to generate teleport probabilities
+	# Damping factor is the directed walk (1 - alpha)
+	pr_scores = pagerank_net.pagerank(directed=True, damping=1-alpha)
+	teleport_probs = np.array(pr_scores)
+	print(f"Teleport probabilities sum: {np.sum(teleport_probs):.4f}")
+	
+	# Random walk with teleportation
+	path = random_walk_with_teleportation(pagerank_net, 
+										  num_steps, 
+										  alpha=alpha,
+										  teleport_probs=teleport_probs,
+										  rng=rng)
 
+	# Visit probabilities to every node in graph
+	visit_probs = estimate_visit_probabilities(path, n)
+	
+	# Plot probabilities
+	plot_visit_probabilities(visit_probs, n, num_steps)
+	
+	# See the relationship between node in-degree and visit probability
+	in_degrees = np.array(pagerank_net.indegree())
 
+	# Find the node with the highest in-degree and highest visit probability
+	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
 
+def find_nodes_with_median_pagerank(pagerank_net, alpha):
 
+	# Compute PageRank scores
+	pr_scores = pagerank_net.pagerank(directed=True, damping=1-alpha)
+	
+	# Sort PageRank scores and their node indices from lowest to highest
+	sorted_node_indices = np.argsort(pr_scores)
 
+	# Middle index of our sorted list
+	n_nodes = pagerank_net.vcount()
+	mid_point = n_nodes // 2
+	
+	# Median
+	if (n_nodes % 2) != 0: # Odd number of nodes
+		median_node = sorted_node_indices[mid_point]
+		pr_score_median = pr_scores[median_node]
+		print(f"Node {median_node} has the exact median PageRank score of: {pr_score_median:.6f}")
+		return [median_node]
+	
+	else: # Even number of nodes
+		# Two middle nodes
+		node_1 = sorted_node_indices[mid_point - 1]
+		node_2 = sorted_node_indices[mid_point]
+		print(f"Node {node_1} has a middle PageRank score of: {pr_scores[node_1]:.6f}")
+		print(f"Node {node_2} has a middle PageRank score of: {pr_scores[node_2]:.6f}")
+		print(f"The median score is: {np.median(pr_scores):.6f}")
+		return [node_1, node_2]
+        
+def question2_4b(alpha=0.2, num_steps=5000):
 
+	# Generate PageRank network
+	n = 900
+	m = 4
+	pagerank_net = page_rank_network(n, m)
+	
+	# Median PageRank nodes
+	mdn_nodes = find_nodes_with_median_pagerank(pagerank_net, alpha)
+	print(f'Median nodes: {mdn_nodes}')
+	
+	# 1/2 probability for two target nodes
+	custom_teleport_probs = np.zeros(n)
+	custom_teleport_probs[mdn_nodes[0]] = 0.5
+	custom_teleport_probs[mdn_nodes[1]] = 0.5
+	
+	# Random walk with teleportation
+	path = random_walk_with_teleportation(pagerank_net, 
+										  num_steps, 
+										  alpha=alpha,
+										  teleport_probs=custom_teleport_probs,
+										  rng=rng)
 
+	# Visit probabilities to every node in graph
+	visit_probs = estimate_visit_probabilities(path, n)
+	
+	# Plot probabilities
+	plot_visit_probabilities(visit_probs, n, num_steps)
+	
+	# See the relationship between node in-degree and visit probability
+	in_degrees = np.array(pagerank_net.indegree())
 
-
+	# Find the node with the highest in-degree and highest visit probability
+	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
