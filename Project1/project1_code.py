@@ -100,7 +100,8 @@ def threshold_condition_index(x_vals, y_vals, threshold):
 
 def question_1c():
 	n = 900
-	ps = np.linspace(0, 0.005, 25)
+	p_max = 0.005
+	ps = np.linspace(0, p_max, 25)
 	n_networks = 100
 	gcc_sizes = []
 	for p in ps:
@@ -108,18 +109,10 @@ def question_1c():
 		avg_norm_gcc_size = np.mean([row["gcc_fraction"] for row in networks])
 		gcc_sizes.append(avg_norm_gcc_size)
 	
-	# Scatter
-	plt.scatter(ps, gcc_sizes, label='Data points')
-	
-	# Trend line
-	x_data, y_data = ps, gcc_sizes
-	coefficients = np.polyfit(x_data, y_data, deg=4)
-	poly_function = np.poly1d(coefficients)
-	x_smooth = np.linspace(x_data.min(), x_data.max(), 200)
-	y_fitted_curve = poly_function(x_smooth)
-	
-	plt.plot(x_smooth, y_fitted_curve, 
-			 color='limegreen', linestyle='--', linewidth=2, label='Trend line')
+	# Plots
+	fig, ax = plt.subplots()
+	ax.scatter(ps, gcc_sizes, label=f'Average of {n_networks} runs')
+	ax.plot(ps, gcc_sizes, color='blue', linestyle='--', linewidth=2, label='Empirical')
 	
 	plt.title('Normalized GCC size v. probability')
 	plt.xlabel('Probability p')
@@ -156,8 +149,10 @@ def question_1d(c):
 	n_networks = 100
 	gcc_sizes = simulate_across_node_sizes(nodes, c, n_networks)
 
-	# Scatter
-	plt.scatter(nodes, gcc_sizes, label='Data points')
+	# Plot
+	fig, ax = plt.subplots()
+	ax.scatter(nodes, gcc_sizes, label=f'Average of {n_networks} runs')
+	ax.plot(nodes, gcc_sizes, color='blue', linestyle='--', linewidth=2, label='Empirical')
 	
 	plt.title(f"Normalized GCC size v. nodes (c={c})")
 	plt.xlabel('Number of nodes n')
@@ -231,6 +226,7 @@ def question_1d_part_iv():
 	plt.grid(True, linestyle='--', alpha=0.5)
 	plt.legend()
 	plt.show()
+
 
 def pa_model_summary(n, m):
     g_pa = ig.Graph.Barabasi(n, m, directed=False)
