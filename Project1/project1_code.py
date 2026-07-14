@@ -5,6 +5,7 @@ import random
 
 rng = np.random.default_rng(232)
 
+<<<<<<< HEAD
 ###################################
 #                                 #
 #  2. Generating Random Networks  #
@@ -17,6 +18,14 @@ def question_1a():
 	for p in probs:
 		g = ig.Graph.Erdos_Renyi(n=n, p=p, directed=False, loops=False)
 
+=======
+def question_1a():
+	probs = [0.002, 0.006, 0.012, 0.045, 0.1]
+	n = 900
+	for p in probs:
+		g = ig.Graph.Erdos_Renyi(n=n, p=p, directed=False, loops=False)
+
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 		deg = np.asarray(g.degree())
 		plt.figure(figsize=(7, 4))
 		plt.hist(deg, bins=np.arange(deg.max() + 2) - 0.5, density=True,
@@ -558,8 +567,13 @@ def question2_1():
     print(f"Average Graph Degree      : {np.mean(graph_degrees):.3f}")
     print(f"Average End-Node Degree   : {np.mean(final_degrees):.3f}")
     print("The degree distribution of the nodes reached at the end of the random walk is biased toward "
+<<<<<<< HEAD
           "higher-degree nodes compared to the degree distribution of the original graph. In an unbiased"
           "random walk on an undirected network, the probability of visiting a node in the long run is"
+=======
+          "higher-degree nodes compared to the degree distribution of the original graph. In an unbiased "
+          "random walk on an undirected network, the probability of visiting a node in the long run is "
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
           "proportional to its degree, because nodes with more incident edges are more likely to be visited.")
 
     print("\n (d) Repeat for N = 9000 \n")
@@ -652,10 +666,17 @@ def question2_2():
 
     print(f"Average Graph Degree      : {np.mean(graph_degrees):.3f}")
     print(f"Average End-Node Degree   : {np.mean(final_degrees):.3f}")
+<<<<<<< HEAD
     #print("The degree distribution of the nodes reached at the end of the random walk is biased toward "
     #      "higher-degree nodes compared to the degree distribution of the original graph. In an unbiased"
     #      "random walk on an undirected network, the probability of visiting a node in the long run is"
     #      "proportional to its degree, because nodes with more incident edges are more likely to be visited.")
+=======
+    print("With the original having an average degree of 1.998 and the random having 4.839, there is a "
+          "large bias to higher degree nodes this is an effect of having a stationary distribution on an "
+          "undirected network where the probability of visit is directly proportional to its degree. In "
+          "this graph the vast majority of nodes are leaves with a degree of 1 (over 60%), the random walker drops the probability of landing on degree-1 nodes to under 30%.")
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 
     print("\n (d) Repeat for N = 9000 \n")
 
@@ -705,10 +726,19 @@ def question2_2():
     print(f"N = 900  : {diameter900}")
     print(f"N = 9000 : {diameter9000}")
 
+<<<<<<< HEAD
     #print("When the network size was increased from 900 to 9000 nodes while keeping the edge probability fixed "
     #      "at p=0.015, the diameter decreased from 5 to 3. Although the larger graph contains ten times as many "
     #      "nodes, it is also much denser because the expected degree increases from approximately 13.5 to 135. The "
     #      "increased connectivity creates many additional shortcuts between nodes, reducing the maximum shortest-path distance in the network.")
+=======
+    print("PA model fixes m = 1, locking the average degree at a sparse baseline of k ~= 2 for all network  "
+          "sizes. This network remains sparse as it grows, with the diameter increasing substantially with "
+          "the number of nodes, expanding from 12 to 27 as grows 90 to 90000, shifting also the avg "
+          "distance and variance. The expanding diameter also causes the random walker significantly more "
+          "steps to explore the larger periphery and the distance keeps increasing showing that the system has not yet reached global equilibrium.")
+
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 
 def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None):
     """
@@ -739,8 +769,13 @@ def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None)
             path.append(current_node)
             
         else:
+<<<<<<< HEAD
         	# If walker hits dead end, it's stuck at current node for remaining steps
         	path.append(current_node)
+=======
+            # If walker hits dead end, it's stuck at current node for remaining steps
+            path.append(current_node)
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 
     return path
 
@@ -760,6 +795,7 @@ def estimate_visit_probabilities(path, n_nodes):
     return visit_probs
     
 def plot_visit_probabilities(visit_probs, n_nodes, n_steps):
+<<<<<<< HEAD
 	
 	# Plot probabilities
 	plt.figure(figsize=(10, 5))
@@ -844,6 +880,89 @@ def question2_3a():
 	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
 	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
 
+=======
+
+    # Plot probabilities
+    plt.figure(figsize=(10, 5))
+    node_indices = np.arange(n_nodes)
+    plt.plot(node_indices, visit_probs, color='darkblue', alpha=0.7, label='Visit Probability')
+    plt.fill_between(node_indices, visit_probs, color='skyblue', alpha=0.4)
+
+    # Formatting
+    plt.title(f'Empirical Node Visit Probabilities via Random Walk ({n_steps} Steps)', 
+              fontsize=13, fontweight='bold')
+    plt.xlabel('Node Index', fontsize=11)
+    plt.ylabel('Probability', fontsize=11)
+    plt.xlim(0, n_nodes)
+    plt.ylim(bottom=0) # Probabilities cannot be negative
+    plt.grid(True, linestyle='--', alpha=0.3)
+    plt.legend()
+
+    plt.show()
+
+
+def page_rank_network(n, m):
+    """Creates a PageRank network."""
+
+    # Directed random network
+    g1 = ig.Graph.Barabasi(n=n, m=m, directed=True)
+    g2 = ig.Graph.Barabasi(n=n, m=m, directed=True)
+
+    # Shuffle indices of nodes
+    shuffled_indices_g1 = random.sample(range(n), n)
+    shuffled_indices_g2 = random.sample(range(n), n)
+    g1_shuffled = g1.permute_vertices(shuffled_indices_g1)
+    g2_shuffled = g2.permute_vertices(shuffled_indices_g2)
+
+    # Merge networks by adding the second graph's edges to the first graph
+    g2_shuffled_edges = g2_shuffled.get_edgelist()
+    g1_shuffled.add_edges(g2_shuffled_edges)
+
+    #print(f"Graph 1 edges: {g1.ecount()}")
+    #print(f"Graph 2 edges: {g2.ecount()}")
+    #print(f"Total nodes: {g1_shuffled.vcount()}")
+    #print(f"Total merged edges: {g1_shuffled.ecount()}")
+
+    return g1_shuffled
+
+
+def lock_in_rng():
+    """Lock in rng for reproducibility."""
+
+    global rng
+    rng = np.random.default_rng(232)
+    random.seed(42)
+    ig.set_random_number_generator(random.Random(42))
+
+
+def question2_3a():
+
+    # Lock in rng for reproducibility
+    lock_in_rng()
+
+    # Directed random network
+    n = 900
+    m = 4
+    pagerank = page_rank_network(n, m)
+
+    # Random walk
+    num_steps = 5000
+    path = random_walk(pagerank, num_steps=num_steps, rng=rng)
+
+    # Visit probabilities to every node in graph
+    visit_probs = estimate_visit_probabilities(path, n)
+
+    # Plot probabilities
+    plot_visit_probabilities(visit_probs, n, num_steps)
+
+    # See the relationship between node in-degree and visit probability
+    # Get the in-degree of every node
+    in_degrees = np.array(pagerank.indegree())
+
+    # Find the node with the highest in-degree and highest visit probability
+    print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+    print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 
 def random_walk_with_teleportation(
     g,
@@ -864,6 +983,7 @@ def random_walk_with_teleportation(
     
     if rng is None:
         rng = np.random.default_rng()
+<<<<<<< HEAD
         
     n_nodes = g.vcount()
     if start_node is None:
@@ -893,10 +1013,47 @@ def random_walk_with_teleportation(
     
     	path.append(current_node)
     
+=======
+
+    n_nodes = g.vcount()
+    if start_node is None:
+        start_node = rng.choice(n_nodes)
+
+    if teleport_probs is None:
+        # If not given, then uniform probability to each node
+        teleport_probs = np.ones(n_nodes) / n_nodes
+
+    # Initialize path with starting node
+    path = [start_node]
+    current_node = start_node
+
+    # Random walk with teleportation
+    for _ in range(num_steps):
+        if rng.random() < alpha:
+            # Teleport to a completely new node
+            current_node = rng.choice(n_nodes, p=teleport_probs)
+        else:
+            neighbors = g.neighbors(current_node)
+            if neighbors:
+                # If the current node has neighbors, pick one randomly and move
+                current_node = rng.choice(neighbors)
+            else:
+                # If at a dead end, force a teleportation
+                current_node = rng.choice(n_nodes, p=teleport_probs)
+
+        path.append(current_node)
+
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
     return path
 
 def question2_3b(alpha=0.2, num_steps=5000):
 
+<<<<<<< HEAD
+=======
+	# Lock in rng for reproducibility
+	lock_in_rng()
+	
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 	# Generate PageRank network
 	n = 900
 	m = 4
@@ -924,6 +1081,12 @@ def question2_3b(alpha=0.2, num_steps=5000):
 
 def question2_4a(alpha=0.2, num_steps=5000):
 
+<<<<<<< HEAD
+=======
+	# Lock in rng for reproducibility
+	lock_in_rng()
+
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 	# Generate PageRank network
 	n = 900
 	m = 4
@@ -985,6 +1148,12 @@ def find_nodes_with_median_pagerank(pagerank_net, alpha):
         
 def question2_4b(alpha=0.2, num_steps=5000):
 
+<<<<<<< HEAD
+=======
+	# Lock in rng for reproducibility
+	lock_in_rng()
+
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
 	# Generate PageRank network
 	n = 900
 	m = 4
@@ -1017,4 +1186,8 @@ def question2_4b(alpha=0.2, num_steps=5000):
 
 	# Find the node with the highest in-degree and highest visit probability
 	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+<<<<<<< HEAD
 	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
+=======
+	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
+>>>>>>> 4840e80bb26fd6b23a3506e2dcfa068824f6d0a8
