@@ -214,8 +214,6 @@ def question_1d_part_iv():
 	plt.show()
 
 
-<<<<<<< HEAD
-=======
 def pa_model_summary(n, m):
     g_pa = ig.Graph.Barabasi(n, m, directed=False)
     print(g_pa.summary())
@@ -461,15 +459,12 @@ def question_3():
     modularity = communities.modularity
     print("Modularity: ", round(modularity, 3))  
 
->>>>>>> origin/main
 ###################################
 #                                 #
 #   2. Random Walk on Networks    #
 #                                 #
 ###################################
 
-<<<<<<< HEAD
-=======
 def simulate_random_walks(g, num_trials=1000, max_steps=30):
     """
     Returns:
@@ -707,8 +702,6 @@ def question2_2():
           "distance and variance. The expanding diameter also causes the random walker significantly more "
           "steps to explore the larger periphery and the distance keeps increasing showing that the system has not yet reached global equilibrium.")
 
-
->>>>>>> origin/main
 def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None):
     """
     Simulate a random walk and return the path of visited nodes.
@@ -738,13 +731,8 @@ def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None)
             path.append(current_node)
             
         else:
-<<<<<<< HEAD
         	# If walker hits dead end, it's stuck at current node for remaining steps
         	path.append(current_node)
-=======
-            # If walker hits dead end, it's stuck at current node for remaining steps
-            path.append(current_node)
->>>>>>> origin/main
 
     return path
 
@@ -764,7 +752,6 @@ def estimate_visit_probabilities(path, n_nodes):
     return visit_probs
     
 def plot_visit_probabilities(visit_probs, n_nodes, n_steps):
-<<<<<<< HEAD
 	
 	# Plot probabilities
 	plt.figure(figsize=(10, 5))
@@ -843,7 +830,6 @@ def question2_3a():
 	# Find the node with the highest in-degree and highest visit probability
 	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
 	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
-=======
 
     # Plot probabilities
     plt.figure(figsize=(10, 5))
@@ -925,7 +911,6 @@ def question2_3a():
     # Find the node with the highest in-degree and highest visit probability
     print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
     print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
->>>>>>> origin/main
 
 def random_walk_with_teleportation(
     g,
@@ -946,37 +931,6 @@ def random_walk_with_teleportation(
     
     if rng is None:
         rng = np.random.default_rng()
-<<<<<<< HEAD
-        
-    n_nodes = g.vcount()
-    if start_node is None:
-        start_node = rng.choice(n_nodes)
-    
-    if teleport_probs is None:
-    	# If not given, then uniform probability to each node
-    	teleport_probs = np.ones(n_nodes) / n_nodes
-    
-    # Initialize path with starting node
-    path = [start_node]
-    current_node = start_node
-    
-    # Random walk with teleportation
-    for _ in range(num_steps):
-    	if rng.random() < alpha:
-    		# Teleport to a completely new node
-    		current_node = rng.choice(n_nodes, p=teleport_probs)
-    	else:
-    		neighbors = g.neighbors(current_node)
-    		if neighbors:
-    			# If the current node has neighbors, pick one randomly and move
-    			current_node = rng.choice(neighbors)
-    		else:
-    			# If at a dead end, force a teleportation
-    			current_node = rng.choice(n_nodes, p=teleport_probs)
-    
-    	path.append(current_node)
-    
-=======
 
     n_nodes = g.vcount()
     if start_node is None:
@@ -1005,8 +959,7 @@ def random_walk_with_teleportation(
                 current_node = rng.choice(n_nodes, p=teleport_probs)
 
         path.append(current_node)
-
->>>>>>> origin/main
+    
     return path
 
 def question2_3b(alpha=0.2, num_steps=5000):
@@ -1140,8 +1093,4 @@ def question2_4b(alpha=0.2, num_steps=5000):
 
 	# Find the node with the highest in-degree and highest visit probability
 	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
-<<<<<<< HEAD
 	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
-=======
-	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
->>>>>>> origin/main
