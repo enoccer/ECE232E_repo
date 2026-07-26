@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import random
 
 rng = np.random.default_rng(232)
+random.seed(42)
 
 def question_1a():
 	probs = [0.002, 0.006, 0.012, 0.045, 0.1]
@@ -701,7 +702,6 @@ def question2_2():
           "distance and variance. The expanding diameter also causes the random walker significantly more "
           "steps to explore the larger periphery and the distance keeps increasing showing that the system has not yet reached global equilibrium.")
 
-
 def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None):
     """
     Simulate a random walk and return the path of visited nodes.
@@ -731,8 +731,8 @@ def random_walk(g, num_steps, start_node=None, transition_matrix=None, rng=None)
             path.append(current_node)
             
         else:
-            # If walker hits dead end, it's stuck at current node for remaining steps
-            path.append(current_node)
+        	# If walker hits dead end, it's stuck at current node for remaining steps
+        	path.append(current_node)
 
     return path
 
@@ -752,6 +752,84 @@ def estimate_visit_probabilities(path, n_nodes):
     return visit_probs
     
 def plot_visit_probabilities(visit_probs, n_nodes, n_steps):
+	
+	# Plot probabilities
+	plt.figure(figsize=(10, 5))
+	node_indices = np.arange(n_nodes)
+	plt.plot(node_indices, visit_probs, color='darkblue', alpha=0.7, label='Visit Probability')
+	plt.fill_between(node_indices, visit_probs, color='skyblue', alpha=0.4)
+	
+	# Formatting
+	plt.title(f'Empirical Node Visit Probabilities via Random Walk ({n_steps} Steps)', 
+	          fontsize=13, fontweight='bold')
+	plt.xlabel('Node Index', fontsize=11)
+	plt.ylabel('Probability', fontsize=11)
+	plt.xlim(0, n_nodes)
+	plt.ylim(bottom=0) # Probabilities cannot be negative
+	plt.grid(True, linestyle='--', alpha=0.3)
+	plt.legend()
+	
+	plt.show()
+	
+def page_rank_network(n, m):
+	"""Creates a PageRank network."""
+
+	# Directed random network
+	g1 = ig.Graph.Barabasi(n=n, m=m, directed=True)
+	g2 = ig.Graph.Barabasi(n=n, m=m, directed=True)
+	
+	# Shuffle indices of nodes
+	shuffled_indices_g1 = random.sample(range(n), n)
+	shuffled_indices_g2 = random.sample(range(n), n)
+	g1_shuffled = g1.permute_vertices(shuffled_indices_g1)
+	g2_shuffled = g2.permute_vertices(shuffled_indices_g2)
+	
+	# Merge networks by adding the second graph's edges to the first graph
+	g2_shuffled_edges = g2_shuffled.get_edgelist()
+	g1_shuffled.add_edges(g2_shuffled_edges)
+	
+	#print(f"Graph 1 edges: {g1.ecount()}")
+	#print(f"Graph 2 edges: {g2.ecount()}")
+	#print(f"Total nodes: {g1_shuffled.vcount()}")
+	#print(f"Total merged edges: {g1_shuffled.ecount()}")
+	
+	return g1_shuffled
+	
+def lock_in_rng():
+	"""Lock in rng for reproducibility."""
+	
+	global rng     
+	rng = np.random.default_rng(232)     
+	random.seed(42)     
+	ig.set_random_number_generator(random.Random(42))
+
+def question2_3a():
+
+	# Lock in rng for reproducibility
+	lock_in_rng()
+	
+	# Directed random network
+	n = 900
+	m = 4
+	pagerank = page_rank_network(n, m)
+	
+	# Random walk
+	num_steps = 5000
+	path = random_walk(pagerank, num_steps=num_steps, rng=rng)
+
+	# Visit probabilities to every node in graph
+	visit_probs = estimate_visit_probabilities(path, n)
+	
+	# Plot probabilities
+	plot_visit_probabilities(visit_probs, n, num_steps)
+
+	# See the relationship between node in-degree and visit probability
+	# Get the in-degree of every node
+	in_degrees = np.array(pagerank.indegree())
+	
+	# Find the node with the highest in-degree and highest visit probability
+	print(f"Node with highest in-degree: {np.argmax(in_degrees)}")
+	print(f"Node with highest visit probability: {np.argmax(visit_probs)}")
 
     # Plot probabilities
     plt.figure(figsize=(10, 5))
@@ -881,7 +959,7 @@ def random_walk_with_teleportation(
                 current_node = rng.choice(n_nodes, p=teleport_probs)
 
         path.append(current_node)
-
+    
     return path
 
 def question2_3b(alpha=0.2, num_steps=5000):
