@@ -1,0 +1,3 @@
+[submodule "FinalProject/panini-course-project"]
+	path = FinalProject/panini-course-project
+	url = https://github.com/YigitTurali/panini-course-project.git
